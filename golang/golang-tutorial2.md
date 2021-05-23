@@ -796,3 +796,65 @@ func main() {
 
 ```
 
+### Readers
+`io`包制定了`io.Reader`接口，代表数据流的读取端。  
+
+Go标准库包含许多这个接口的实现，包括分拣、网络连接、压缩机、密码和其他。  
+
+`io.Reader`接口又一个`Read`方法：
+```go
+func (T) Read(b []byte) (n int, err error)
+```
+
+`Read`输入给定数据的字节切片并且返回成功输入的字节数和一个错误值。当流结束的时候，它返回一个`io.EOF`。  
+
+样例代码创造了一个`strings.Reader`并且每次消耗8个字节。  
+
+```go
+package main
+
+import (
+    "fmt"
+    "io"
+    "strings"
+)
+
+func main() {
+    r := strings.NewReader("Hello, Reader!")
+
+    b := make([]byte, 8)
+
+    for {
+        n, err := r.Read(b)
+        fmt.Printf("n = %v err = %v b = %v\n", n, err, b)
+        fmt.Printf("b[:n] = %q\n", b["n])
+        if err == io.EOF {
+            break
+        }
+    }
+    
+}
+```
+
+### Exercise: Readers
+实现一个可以发射一个ASCII字符'A'的无限流`Reader`类型。  
+
+```go
+package main
+
+import "golang.org/x/tour/reader"
+
+type MyReader struct {}
+
+// TODO: Add a Read([]byte) (int, error) method to MyReader.
+func (m MyReader) Read(bytes []byte) (int, error){
+	for i := range bytes {
+		bytes[i] = 65
+	}
+	return len(bytes), nil
+}
+
+func main() {
+	reader.Validate(MyReader{})
+}
+```
