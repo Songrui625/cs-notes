@@ -312,3 +312,164 @@ func main() {
     Walk(t1, ch1)
     Walk(t2, ch2)
 ```
+
+### sync.Mutex
+我们已经直到管道是对于线程之间的通信非常有用。  
+
+但如果我们不想通信呢？如果我们只想保证一次只有一个线程访问变量避免冲突又该如何？  
+
+这个概念叫做`互斥(mutual exclusion)`, 缩写为`mutex`。  
+
+Go的标准库种`sync.Mutex`提供了互斥，它有两种方法：
+```go
+Lock
+Unlock
+```
+
+我们可以定义代码块通过调用`Lock`和`Unlock`来使它被互斥的执行，正如`Inc`函数一样。  
+
+我们也可以使用`defer`来确保mutex被unlock当处于`Value`方法的时候。  
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+// SafeCounter is safe to use concurrently.
+type SafeCounter struct {
+	mu sync.Mutex
+	v  map[string]int
+}
+
+// Inc increments the counter for the given key.
+func (c *SafeCounter) Inc(key string) {
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	c.v[key]++
+	c.mu.Unlock()
+}
+
+// Value returns the current value of the counter for the given key.
+func (c *SafeCounter) Value(key string) int {
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	defer c.mu.Unlock()
+	return c.v[key]
+}
+
+func main() {
+	c := SafeCounter{v: make(map[string]int)}
+	for i := 0; i < 1000; i++ {
+		go c.Inc("somekey")
+	}
+
+	time.Sleep(time.Second)
+	fmt.Println(c.Value("somekey"))
+}
+```
+
+### Exercise: Web Crawler
+在这个练习我们会使用Go的并发特性来并行化一个网页爬虫  
+
+修改`Crawl`函数来并行地抓取URLs但不要抓取同一个URL两次  
+
+提示：你可以在map中维护一个已经抓取过的URLs的缓存，但是map并还不是线程安全的。  
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+type Fetcher interface {
+	// Fetch returns the body of URL and
+	// a slice of URLs found on that page.
+	Fetch(url string) (body string, urls []string, err error)
+}
+
+type fetchState struct {
+	m	    sync.Mutex
+	fetched map[string]bool
+}
+
+// Crawl uses fetcher to recursively crawl
+// pages starting with url, to a maximum of depth.
+func Crawl(url string, depth int, fetcher Fetcher) {
+	// TODO: Fetch URLs in parallel.
+	// TODO: Don't fetch the same URL twice.
+	// This implementation doesn't do either:
+	if depth <= 0 {
+		return
+	}
+	body, urls, err := fetcher.Fetch(url)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("found: %s %q\n", url, body)
+	for _, u := range urls {
+		go Crawl(u, depth-1, fetcher)
+	}
+	return
+}
+
+func main() {
+	Crawl("https://golang.org/", 4, fetcher)
+}
+
+// fakeFetcher is Fetcher that returns canned results.
+type fakeFetcher map[string]*fakeResult
+
+type fakeResult struct {
+	body string
+	urls []string
+}
+
+func (f fakeFetcher) Fetch(url string) (string, []string, error) {
+	if res, ok := f[url]; ok {
+		return res.body, res.urls, nil
+	}
+	return "", nil, fmt.Errorf("not found: %s", url)
+}
+
+// fetcher is a populated fakeFetcher.
+var fetcher = fakeFetcher{
+	"https://golang.org/": &fakeResult{
+		"The Go Programming Language",
+		[]string{
+			"https://golang.org/pkg/",
+			"https://golang.org/cmd/",
+		},
+	},
+	"https://golang.org/pkg/": &fakeResult{
+		"Packages",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/cmd/",
+			"https://golang.org/pkg/fmt/",
+			"https://golang.org/pkg/os/",
+		},
+	},
+	"https://golang.org/pkg/fmt/": &fakeResult{
+		"Package fmt",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
+	"https://golang.org/pkg/os/": &fakeResult{
+		"Package os",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
+}
+
+```
