@@ -473,3 +473,59 @@ var fetcher = fakeFetcher{
 }
 
 ```
+
+首先想先防止一个page被爬取两次，我们可以用一个visited数组来记录某一个网页是否已经被爬取。如果已经被爬取了，那就直接返回；
+如果没有被爬取，就爬取它，把visited数组标记为true。  
+
+```go
+func Crawl(url string, depth int, fetcher Fetcher, fetched map[string]bool) {
+	// TODO: Fetch URLs in parallel.
+	// TODO: Don't fetch the same URL twice.
+	// This implementation doesn't do either:
+	if depth <= 0 {
+		return
+	}
+
+	if fetched[url] {
+		return
+	}
+	fetched[url] = true
+
+	body, urls, err := fetcher.Fetch(url)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("found: %s %q\n", url, body)
+	for _, u := range urls {
+		Crawl(u, depth-1, fetcher, fetched)
+	}
+	return
+}
+```
+执行结果如下：
+```bash
+found: https://golang.org/ "The Go Programming Language"
+found: https://golang.org/pkg/ "Packages"
+not found: https://golang.org/cmd/
+found: https://golang.org/pkg/fmt/ "Package fmt"
+found: https://golang.org/pkg/os/ "Package os"
+```
+
+但是这是单线程在爬取，我们希望多个线程并行爬取网页，回想所学知识，我们可能需要做一些改变了
+```go
+-	Crawl(u, depth-1, fetcher, fetched)
++	go Crawl(u, depth-1, fetcher, fetched)
+```
+执行结果如下：
+```bash
+found: https://golang.org/ "The Go Programming Language"
+```
+只爬取了一次网页，和我们所预想的情况并不同，这是为什么呢？  
+要知道，其实我们如果只是单线程的话，我们的线程被称为`main goroutine`，而`go func()`关键字
+创建的是`worker goroutine`，当我们fetch了一个url后，我们的`main goroutine`可能进行循环，并创建了多个
+`worker goroutine`,但没有选择调度他们进行运行，所以我们的`main goroutine`会迅速循环完，然后退出函数，而
+main函数结束后整个程序结束，`worker goroutine`根本没有机会被调度运行，所以会导致只fetch到一个url的情况。  
+
+所以我们不能只是单单的加`go`关键字，我们必须要等待这些`worker goroutine`被调度，然后执行完它们的任务后，
+再结束程序。
