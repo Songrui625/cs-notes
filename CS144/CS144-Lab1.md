@@ -1,9 +1,4 @@
----
-title: CS144 Lab1
-date: 2021-03-21 14:43:19
-tags: networking
----
-
+# Lab 1: stitching substrings into a byte stream
 这个lab是要求我们完成一个分组重组器
 
 在上一个Lab中，我们实现了一个内存中的字节流，这个Lab中，我们会实现一个分组重组器，将到来的无序、重复的字符

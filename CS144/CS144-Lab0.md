@@ -1,10 +1,4 @@
----
-title: CS144 Lab0
-date: 2021-03-20 23:01:25
-tags: networking  
-
----
-
+# Lab 0: networking warmup
 这个lab0需要我们实现两个东西：1、HTTP Client。2、一个in-memory的Byte Stream。<!--more-->
 
 ## Writing Webget
