@@ -2,8 +2,8 @@
 My notes for learning computer science. ^_^
 
 ## CS144
-[Lab0:In-Memory ByteStream](/CS144/CS144-lab0.md)  
-[Lab1:Stream Reassembler](/CS144/CS144-LAB1.md)  
+[Lab0:In-Memory ByteStream](/CS144/CS144-Lab0.md)  
+[Lab1:Stream Reassembler](/CS144/CS144-Lab1.md)  
 [Lab2:TcpReceiver](/CS144/CS144-Lab2.md)  
 
 ## 编程语言
