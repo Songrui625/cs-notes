@@ -2,7 +2,7 @@
 
 在这个lab中，我们需要实现一个TCP Receiver。
 
-## 3.1 Translating between 64-bit indexes and 32-bit seqnos
+## 1 Translating between 64-bit indexes and 32-bit seqnos
 
 作为热身，我们需要实现一个TCP表示索引的方式。在TCP头部中，空间是是什么珍贵的，每个字节的索引在流中不是一个64位数，而是一个32位数，被称为"sequence number", 或者"seqno"。由于我们的字节最终会进入到内存中的字节流进行处理，所以我们需要一个工具类，来对32位和64位索引进行相互转换。难点在**seqno** 和 **absolute seqno**的相互转换。三种索引的关系图如下：
 
@@ -17,7 +17,6 @@
 `seqno(x) = abs_seqno(x) + isn` 
 ```c++
 WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
-    // DUMMY_CODE(n, isn);
     return WrappingInt32{(static_cast<uint32_t>(n) + isn.raw_value())};
 }
 ```
@@ -65,7 +64,7 @@ Test project /home/linux/codespace/sponge/build
 
 Total Test time (real) =   0.16 sec
 ```
-## 3.2 Implementing the TCP receiver
+## 2 Implementing the TCP receiver
 我们将要实现的`TCPReceiver`主要负责三件事。  
 1. 从对等方接收Segment
 2. 使用我们的之前实现的流重组器`StreamReassembler`重组Segment中的子串。
@@ -113,7 +112,7 @@ size_t TCPSegment::length_in_sequence_space() const {
 ```
 我们后面会频繁用到这个函数。  
 
-### 3.2.1 segment received()
+### 2.1 segment received()
 每当一个新的segment到来时，这个函数就会被调用。  
 这个函数的需要做到：  
 * **如若需要，设置初始化序列号(isn)**。 第一个到达并且**SYN标志位被置位**报文段的序列号就是`初始化序列号`。
@@ -178,7 +177,7 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     }
 }
 ```
-### 3.2.2 ackno()
+### 2.2 ackno()
 返回接收窗口的左边界，也就是感兴趣子串的第一个字节。
 ```c++
 optional<WrappingInt32> TCPReceiver::ackno() const {
