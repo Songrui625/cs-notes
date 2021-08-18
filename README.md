@@ -1,6 +1,10 @@
 # cs-notes
 My notes for learning computer science. ^_^
 
+## CMU15-445: 数据库系统导论
+
+[并发控制: MVCC](/CMU15-445/MVCC.md)
+
 ## MIT6.828: 自己实现一个操作系统内核
 
 [Lab1:bootstrap Part1](/MIT6.828/lab1-part1.md)
