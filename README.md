@@ -5,6 +5,10 @@ My notes for learning computer science. ^_^
 
 [并发控制: MVCC](/CMU15-445/MVCC.md)
 
+## 论文阅读笔记
+
+[LSM-Tree](/paper/lsmtree.md)
+
 ## MIT6.828: 自己实现一个操作系统内核
 
 [Lab1:bootstrap Part1](/MIT6.828/lab1-part1.md)
