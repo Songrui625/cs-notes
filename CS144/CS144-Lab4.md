@@ -147,7 +147,7 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
 
 
 
-最后放一下测试。
+能自己一步一步实现一个简单的TCP协议还是十分高兴的，能近距离感受那些在书本上晦涩的概念，字节流、可靠传输等等，唯一可惜的就是涵盖的内容不算很多，例如对拥塞控制没有很好的覆盖，只是简单的通过窗口大小限制端系统缓冲区溢出，这些都是十分可惜，希望以后有机会能补上吧。最后放一下测试。
 
 ```bash
 # linux @ DESKTOP-S8JI0F3 in ~/codespace/sponge/build on git:master x [18:12:30] 
@@ -180,6 +180,13 @@ Test project /home/linux/codespace/sponge/build
 
 Total Test time (real) =  41.08 sec
 [100%] Built target check_lab4
+```
+
+```bash
+# linux @ DESKTOP-S8JI0F3 in ~/codespace/sponge/build on git:master x [19:25:49] 
+$ ./apps/tcp_benchmark 
+CPU-limited throughput                : 4.63 Gbit/s
+CPU-limited throughput with reordering: 3.23 Gbit/s
 ```
 
 
