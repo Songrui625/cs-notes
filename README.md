@@ -21,7 +21,7 @@ My notes for learning computer science. ^_^
 
 [Lab2:Memory Management Part2](/MIT6.828/lab2-part2.md)
 
-[Lab3:Memory Management Part3](/MIT6.828/lab2-part3.md)
+[Lab2:Memory Management Part3](/MIT6.828/lab2-part3.md)
 
 
 
