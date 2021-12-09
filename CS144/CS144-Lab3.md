@@ -61,7 +61,6 @@ void TCPSender::fill_window() {
     // ack like it was one if window size is zero and
     // buffer window size still have space
     int32_t remaining_win_cap = !_window_size ? 1 - bytes_in_flight() : _window_size - bytes_in_flight();
-    if (remaining_win_cap)
     while (remaining_win_cap > 0 && !_fin_sent) {
         size_t payload_size = min(static_cast<size_t>(remaining_win_cap), TCPConfig::MAX_PAYLOAD_SIZE);
         seg.payload() = std::move(_stream.read(payload_size));
